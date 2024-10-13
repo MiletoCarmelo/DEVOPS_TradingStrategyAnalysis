@@ -42,13 +42,16 @@ jobs:
         run: |
           sed -i "s|<<AAA>>|${{ env.REGISTRY_NAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}|g" ./prod/deployment.yaml
 
-      - name: Commit and push changes to prod
+      - name: Set user for git
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
+
+      - name: Commit
+        run: |
           git add .
           git commit -m "Update ./prod/ with new image reference"
           # Pull latest changes from remote prod branch before pushing
-          git pull origin prod --rebase
+          git pull origin prod --rebase rebase --skip
           git push origin HEAD:prod
           # git push https://x-access-token:${{ secrets.MY_PAT }}@github.com/${{ github.repository }} HEAD:prod
