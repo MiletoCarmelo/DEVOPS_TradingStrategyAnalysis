@@ -3,7 +3,7 @@ name: Update Deployment
 on:
   push:
     branches:
-      - prod
+      - base
 
 env:
   REGISTRY_NAME: ghcr.io
