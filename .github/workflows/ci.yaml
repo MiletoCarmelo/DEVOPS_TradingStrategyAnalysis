@@ -52,11 +52,6 @@ jobs:
           git add .
           git commit -m "Update ./prod/ with new image reference"
 
-      - name: Pull 
-        run: |
-          # Pull latest changes from remote prod branch before pushing
-          git pull origin prod --rebase
-
       - name: Push
         run: |
           git push origin HEAD:prod
