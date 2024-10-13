@@ -3,7 +3,7 @@ name: Update Deployment
 on:
   push:
     branches:
-      - base
+      - prod
 
 env:
   REGISTRY_NAME: ghcr.io
@@ -20,12 +20,6 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          ref: prod  # Check out the base branch
-          token: ${{ github.token }}
-
-      - name: Merge base branch
-        run: git merge base
 
       - name: Set lowercase IMAGE_NAME
         id: set_image_name
@@ -40,6 +34,10 @@ jobs:
 
       - name: Print IMAGE_NAME
         run: echo "${{ env.IMAGE_NAME }}"
+
+      - name: copy prod to deployment
+        run: |
+          cp ./template/deployment.yaml ./prod/deployment.yaml
 
       - name: Replace image placeholder
         run: |
