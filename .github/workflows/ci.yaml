@@ -29,7 +29,7 @@ jobs:
         id: remove_devpos
         run: |
           IMAGE_NAME_NO_DEVOPS="${{ env.IMAGE_NAME_LOWER }}"
-          IMAGE_NAME_NO_DEVOPS="${IMAGE_NAME_NO_DEVOPS/DEVOPS_/}"
+          IMAGE_NAME_NO_DEVOPS="${IMAGE_NAME_NO_DEVOPS/devops_/}"
           echo "IMAGE_NAME=${IMAGE_NAME_NO_DEVOPS}" >> $GITHUB_ENV
 
       - name: Print IMAGE_NAME
