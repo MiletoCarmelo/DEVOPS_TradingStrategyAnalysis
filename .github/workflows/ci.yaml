@@ -23,10 +23,11 @@ jobs:
           ref: prod  # Check out the prod branch
           token: ${{ github.token }}
 
-      - name: Pull Request (for base branch)
+      - name: pull base branch
         if: github.ref == 'refs/heads/prod'
         run: |
-          git pull
+          git fetch origin base:base
+          git pull origin base
 
       - name: merge base branch
         if: github.ref == 'refs/heads/prod'
