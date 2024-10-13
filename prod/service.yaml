@@ -11,3 +11,8 @@ spec:
   - port: 8020  # Port the service listens on
     protocol: TCP
     targetPort: 5000  # Should match the container's port
+
+
+# ne pas oublier de lancer le port-forwarding : 
+# -------------------------------------------
+# kubectl port-forward service/trading-strategy-analysis-service 8020:8020 -n quant-apps
