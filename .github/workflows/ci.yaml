@@ -11,8 +11,7 @@ env:
   IMAGE_TAG: latest
 
 permissions:
-  contents: read  # Allows reading files from the repository
-  packages: write  # Allows pushing images to the GitHub Container Registry
+  contents: write  # Allows reading files from the repository
 
 jobs:
   build:
