@@ -23,15 +23,14 @@ jobs:
           ref: prod  # Check out the prod branch
           token: ${{ github.token }}
 
-      - name: Pull base branch with merge strategy
+      - name: Pull base branch
         run: |
           git fetch origin
-          git pull origin base --no-rebase  # Add --no-rebase to use merge strategy
-     
+          git pull origin base --allow-unrelated-histories  # Allow merging unrelated histories
+
       - name: Merge base branch
         run: |
           git merge base --allow-unrelated-histories  # Allow merging unrelated histories
-
 
       - name: Set lowercase IMAGE_NAME
         id: set_image_name
