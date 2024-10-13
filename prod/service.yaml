@@ -10,5 +10,4 @@ spec:
   - port: 8010  # Port the service listens on
     protocol: TCP
     targetPort: 5000  # Should match the container's port
-    nodePort: 8010   # Optional: You can specify a NodePort or let Kubernetes assign one
   type: ClusterIP  # Optional, default is ClusterIP
