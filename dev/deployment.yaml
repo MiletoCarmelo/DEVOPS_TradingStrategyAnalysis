@@ -17,4 +17,4 @@ spec:
       - name: trading-strategy-analysis
         image: <<AAA>>  # Placeholder for image
         ports:
-        - containerPort: 5050  # Port the container listens on
+        - containerPort: 5000  # Port the container listens on
