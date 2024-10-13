@@ -40,7 +40,8 @@ jobs:
 
       - name: copy prod to deployment
         run: |
-          cp ./dev/* ./prod/
+          cp ./dev/deployment.yaml ./prod/deployment.yaml
+          cp ./dev/service.yaml ./prod/service.yaml
   
 
       - name: Replace image placeholder
