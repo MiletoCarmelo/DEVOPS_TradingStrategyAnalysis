@@ -17,4 +17,11 @@ spec:
       - name: trading-strategy-analysis
         image: ghcr.io/miletocarmelo/tradingstrategyanalysis:latest  # Placeholder for image
         ports:
+<<<<<<< HEAD
         - containerPort: 5000  # Port the container listens on
+=======
+        - containerPort: 5050  # Port the container listens on
+        env:
+        - name: PORT
+          value: "5050"
+>>>>>>> 9425fef9ac5882e5aba5af244e122fd1d5d204fd
