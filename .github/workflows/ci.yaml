@@ -42,7 +42,7 @@ jobs:
         run: |
           sed -i "s|<<AAA>>|${{ env.REGISTRY_NAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}|g" ./prod/deployment.yaml
 
-      - name: Commit and push changes
+      - name: Commit and push changes to prod
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
