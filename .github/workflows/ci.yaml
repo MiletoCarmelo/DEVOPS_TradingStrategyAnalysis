@@ -21,6 +21,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Pull prod branch
+        run: git pull origin prod
+
       - name: Set lowercase IMAGE_NAME
         id: set_image_name
         run: echo "IMAGE_NAME_LOWER=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
@@ -53,10 +56,6 @@ jobs:
           git add ./prod/deployment.yaml
           git commit -m "Update ./prod/deployment.yaml with new image reference"
 
-      - name Rebase false 
-        run: | 
-          git config pull.rebase false
-          
       - name: Push to prod
         run: |
           git push origin HEAD:prod
