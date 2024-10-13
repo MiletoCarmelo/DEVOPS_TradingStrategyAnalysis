@@ -1,0 +1,24 @@
+apiVersion: trading-strategy-analysis/v1
+kind: Application
+metadata:
+  name: trading-strategy-analysis
+  namespace: myapp
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/MiletoCarmelo/DEVOPS_TradingStrategyAnalysis.git
+    targetRevision: prod
+    path: dev
+  destination: 
+    server: https://kubernetes.default.svc
+    namespace: myapp
+
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+    - PrunePropagationPolicy=foreground
+
+    automated:
+      selfHeal: true
+      prune: true
