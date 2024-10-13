@@ -7,7 +7,7 @@ spec:
   selector:
     app: trading-strategy-analysis  # Should match the deployment's labels
   ports:
-  - port: 80
+  - port: 8001  # Port the service listens on
     protocol: TCP
-    targetPort: 8090  # Should match the container's port
+    targetPort: 5000  # Should match the container's port
   type: ClusterIP  # Optional, default is ClusterIP
