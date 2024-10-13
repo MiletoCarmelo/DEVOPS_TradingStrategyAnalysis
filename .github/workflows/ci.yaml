@@ -55,8 +55,8 @@ jobs:
 
       - name: Commit
         run: |
-          git add ./prod/deployment.yaml
-          git commit -m "Update ./prod/deployment.yaml with new image reference"
+          git add ./prod/*
+          git commit -m "Update ./prod/* with new image reference"
 
       - name: Push to prod
         run: |
