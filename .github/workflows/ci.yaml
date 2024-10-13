@@ -24,13 +24,11 @@ jobs:
           token: ${{ github.token }}
 
       - name: pull base branch
-        if: github.ref == 'refs/heads/prod'
         run: |
           git fetch origin base:base
           git pull origin base
 
       - name: merge base branch
-        if: github.ref == 'refs/heads/prod'
         run: |
           git merge base
 
