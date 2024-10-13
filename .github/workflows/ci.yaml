@@ -22,11 +22,6 @@ jobs:
         with:
           ref: prod  # Check out the prod branch
 
-      - name: Set Git User for actions
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-
       - name: Pull Request (for base branch)
         if: github.ref == 'refs/heads/prod'
         run: |
@@ -55,6 +50,11 @@ jobs:
         run: |
           sed -i "s|<<AAA>>|${{ env.REGISTRY_NAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}|g" ./prod/deployment.yaml
 
+      - name: Set Git User for actions
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          
       - name: Commit and push changes
         run: |
           git add ./prod/deployment.yaml
