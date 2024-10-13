@@ -1,24 +1,21 @@
-apiVersion: trading-strategy-analysis/v1
+apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: trading-strategy-analysis
-  namespace: myapp
+  namespace: quant-apps
 spec:
   project: default
-
   source:
     repoURL: https://github.com/MiletoCarmelo/DEVOPS_TradingStrategyAnalysis.git
     targetRevision: prod
-    path: dev
+    path: prod
   destination: 
     server: https://kubernetes.default.svc
-    namespace: myapp
-
+    namespace: quant-apps
   syncPolicy:
     syncOptions:
     - CreateNamespace=true
     - PrunePropagationPolicy=foreground
-
     automated:
       selfHeal: true
       prune: true
