@@ -23,12 +23,12 @@ jobs:
           ref: prod  # Check out the prod branch
           token: ${{ github.token }}
 
-      - name: pull base branch
+      - name: Pull base branch with merge strategy
         run: |
-          git fetch origin base:base
-          git pull origin base
+          git fetch origin
+          git pull origin base --no-rebase  # Add --no-rebase to use merge strategy
 
-      - name: merge base branch
+      - name: Merge base branch
         run: |
           git merge base
 
