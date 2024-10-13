@@ -27,10 +27,11 @@ jobs:
         run: |
           git fetch origin
           git pull origin base --no-rebase  # Add --no-rebase to use merge strategy
-
+     
       - name: Merge base branch
         run: |
-          git merge base
+          git merge base --allow-unrelated-histories  # Allow merging unrelated histories
+
 
       - name: Set lowercase IMAGE_NAME
         id: set_image_name
