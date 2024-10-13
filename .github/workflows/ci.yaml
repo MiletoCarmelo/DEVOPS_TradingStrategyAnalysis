@@ -1,4 +1,4 @@
-name: Update Deployment
+name: Update Deployment to prod
 
 on:
   push:
