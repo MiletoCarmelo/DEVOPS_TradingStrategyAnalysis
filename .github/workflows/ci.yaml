@@ -25,13 +25,13 @@ jobs:
         id: set_image_name
         run: echo "IMAGE_NAME_LOWER=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
-      - name: remove "DEVPOS_" from IMAGE_NAME
+      - name: Remove "DEVOPS_" from IMAGE_NAME
         id: remove_devpos
-        run: echo "IMAGE_NAME=${IMAGE_NAME_LOWER/DEVOPS_/}" >> $GITHUB_ENV
-      
-      - name: print IMAGE_NAME
-        run: echo $IMAGE_NAME
+        run: echo "IMAGE_NAME=${{ env.IMAGE_NAME_LOWER/DEVOPS_/ }}" >> $GITHUB_ENV
+
+      - name: Print IMAGE_NAME
+        run: echo "${{ env.IMAGE_NAME }}"
 
       - name: Replace image placeholder
-              run: |
-                sed -i "s|<<AAA>>|${{ env.REGISTRY_NAME }}/${IMAGE_NAME}:${{ env.IMAGE_TAG }}|g" deployment.yaml
+        run: |
+          sed -i "s|<<AAA>>|${{ env.REGISTRY_NAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}|g" deployment.yaml
