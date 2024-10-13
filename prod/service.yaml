@@ -7,8 +7,8 @@ spec:
   selector:
     app: trading-strategy-analysis  # Should match the deployment's labels
   ports:
-  - port: 8001  # Port the service listens on
+  - port: 8010  # Port the service listens on
     protocol: TCP
     targetPort: 5000  # Should match the container's port
-    nodePort: 8001   # Optional: You can specify a NodePort or let Kubernetes assign one
+    nodePort: 8010   # Optional: You can specify a NodePort or let Kubernetes assign one
   type: ClusterIP  # Optional, default is ClusterIP
