@@ -15,6 +15,6 @@ spec:
     spec:
       containers:
       - name: trading-strategy-analysis
-        image: ghcr.io/<YOUR_GITHUB_USERNAME>/<YOUR_REPO_NAME>/trading-strategy-analysis:latest
+        image: <<AAA>>  # Placeholder for image
         ports:
         - containerPort: 8090

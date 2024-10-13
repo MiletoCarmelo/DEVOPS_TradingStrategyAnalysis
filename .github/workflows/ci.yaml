@@ -1,0 +1,37 @@
+name: Update Deployment
+
+on:
+  push:
+    branches:
+      - prod
+
+env:
+  REGISTRY_NAME: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}  # This will be in the format "owner/repo"
+  IMAGE_TAG: latest
+
+permissions:
+  contents: read  # Allows reading files from the repository
+  packages: write  # Allows pushing images to the GitHub Container Registry
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set lowercase IMAGE_NAME
+        id: set_image_name
+        run: echo "IMAGE_NAME_LOWER=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: remove "DEVPOS_" from IMAGE_NAME
+        id: remove_devpos
+        run: echo "IMAGE_NAME=${IMAGE_NAME_LOWER/DEVOPS_/}" >> $GITHUB_ENV
+      
+      - name: print IMAGE_NAME
+        run: echo $IMAGE_NAME
+
+      - name: Replace image placeholder
+              run: |
+                sed -i "s|<<AAA>>|${{ env.REGISTRY_NAME }}/${IMAGE_NAME}:${{ env.IMAGE_TAG }}|g" deployment.yaml
