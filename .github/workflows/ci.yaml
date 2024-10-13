@@ -48,5 +48,7 @@ jobs:
           git config --global user.email "github-actions@github.com"
           git add .
           git commit -m "Update ./prod/ with new image reference"
-          git pull
-          git push https://x-access-token:${{ secrets.MY_PAT }}@github.com/${{ github.repository }} HEAD:prod
+          # Pull latest changes from remote prod branch before pushing
+          git pull origin prod --rebase || echo "No changes to merge"  # Use rebase to keep history linear
+          git push origin HEAD:prod
+          # git push https://x-access-token:${{ secrets.MY_PAT }}@github.com/${{ github.repository }} HEAD:prod
