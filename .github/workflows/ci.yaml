@@ -32,8 +32,8 @@ jobs:
 
       - name: Merge base branch
         run: |
-          git merge base 
-          
+          git merge origin/base 
+
       - name: Set lowercase IMAGE_NAME
         id: set_image_name
         run: echo "IMAGE_NAME_LOWER=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
