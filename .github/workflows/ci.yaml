@@ -51,7 +51,12 @@ jobs:
         run: |
           git add .
           git commit -m "Update ./prod/ with new image reference"
+
+      - name: Pull 
+        run: 
           # Pull latest changes from remote prod branch before pushing
           git pull origin prod --rebase rebase --skip
+
+      - name: Push
           git push origin HEAD:prod
           # git push https://x-access-token:${{ secrets.MY_PAT }}@github.com/${{ github.repository }} HEAD:prod
