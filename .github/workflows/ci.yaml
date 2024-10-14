@@ -65,11 +65,9 @@ jobs:
 
       - name: Commit
         run: |
-          git add ./prod/*
-          git commit -m "Update ./prod/* with new image reference"
-          git add ./prod_workflow/*
-          git commit -m "Update ./prod_workflow/* with new image reference"
-
+          git add .
+          git commit -m "Update deployment"
+          
       - name: Push to prod
         run: |
           git push origin HEAD:prod
