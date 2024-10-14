@@ -1,0 +1,12 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: ephemeral-pod-template
+  namespace: quant-apps
+spec:
+  templates:
+  - name: create-pod
+    container:
+      image: <<AAA>>
+      command: ["/bin/sh", "-c"]
+      args: ["echo 'Ephemeral pod created'; sleep infinity"]
