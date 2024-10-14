@@ -7,6 +7,6 @@ spec:
   templates:
   - name: create-pod
     container:
-      image: <<AAA>>
+      image: ghcr.io/miletocarmelo/tradingstrategyanalysis:latest
       command: ["/bin/sh", "-c"]
       args: ["echo 'Ephemeral pod created'; sleep infinity"]
