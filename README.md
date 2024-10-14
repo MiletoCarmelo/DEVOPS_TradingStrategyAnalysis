@@ -17,7 +17,7 @@ kubectl port-forward svc/argocd-server -n argocd 8090:443
 # Port-forwarding for argo workflow : 
 
 ```bash
-kubectl -n argo port-forward deployment/argo-server 2746:2746
+kubectl -n argo port-forward deployment/argo-server 8095:2746
 ```
 
 # Port-forwarding for the app : 
@@ -25,3 +25,9 @@ kubectl -n argo port-forward deployment/argo-server 2746:2746
 kubectl port-forward service/trading-strategy-analysis-service 8020:8020 -n quant-apps
 ```
 
+
+# go into apps : 
+
+argo workflow : https://localhost:8095
+argo cd : https://localhost:8095
+app : argo cd : https://localhost:8020
