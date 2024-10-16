@@ -14,16 +14,13 @@ spec:
     - template:
         name: trading-strategy-analysis
         k8s:
-          group: ""
-          version: v1
-          resource: pods
           operation: create
           source:
             resource:
               apiVersion: v1
               kind: Pod
               metadata:
-                GenerateName: trading-strategy-analysis-
+                generateName: trading-strategy-analysis-
                 labels:
                   app: trading-strategy-analysis
               spec:
@@ -37,9 +34,7 @@ spec:
                       - name: PORT
                         value: "8020"
                 restartPolicy: Never
-          parameters:
-            - src:
-                dependencyName: trading-strategy-analysis
-              dest: spec.containers.0.env.0.value  # This line was missing
-
-
+        parameters:
+          - src:
+              dependencyName: trading-strategy-analysis
+            dest: spec.containers.0.env.0.value
