@@ -3,10 +3,27 @@ kind: WorkflowTemplate
 metadata:
   name: ephemeral-pod-template
   namespace: quant-apps
+  labels:
+    example: 'true'
 spec:
+  arguments:
+    parameters:
+      - name: message
+        value: "Ephemeral pod created"
+  entrypoint: create-pod
   templates:
-  - name: create-pod
-    container:
-      image: ghcr.io/miletocarmelo/tradingstrategyanalysis:latest
-      command: ["/bin/sh", "-c"]
-      args: ["echo 'Ephemeral pod created'; sleep infinity"]
+    - name: create-pod
+      inputs:
+        parameters:
+          - name: message
+            value: '{{workflow.parameters.message}}'
+      container:
+        name: main
+        image: ghcr.io/miletocarmelo/tradingstrategyanalysis:latest
+        command: ["/bin/sh", "-c"]
+        args:
+          - echo '{{inputs.parameters.message}}'; sleep infinity
+  ttlStrategy:
+    secondsAfterCompletion: 300
+  podGC:
+    strategy: OnPodCompletion

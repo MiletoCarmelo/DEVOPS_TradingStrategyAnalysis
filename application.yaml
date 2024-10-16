@@ -1,8 +1,8 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: trading-strategy-analysis
-  namespace: quant-apps
+  name: trading-strategy-analysis-production
+  namespace: argocd
 spec:
   project: default
   source:
@@ -11,7 +11,7 @@ spec:
     path: prod
   destination: 
     server: https://kubernetes.default.svc
-    namespace: quant-apps
+    namespace: argocd
   syncPolicy:
     syncOptions:
     - CreateNamespace=true
@@ -19,3 +19,4 @@ spec:
     automated:
       selfHeal: true
       prune: true
+

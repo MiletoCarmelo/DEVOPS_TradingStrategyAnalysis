@@ -1,0 +1,15 @@
+
+
+kubectl --namespace argocd rollout status deployment argocd-server
+
+export PASS=$(kubectl --namespace argocd get secret argocd-initial-admin-secret --output jsonpath="{.data.password}" | base64 --decode)
+echo $PASS
+
+export BASE_HOST=localhost:8090
+echo $BASE_HOST
+
+argocd login --insecure --username admin --password $PASS --grpc-web localhost:8090
+argocd login --insecure --username admin --password $PASS --grpc-web $BASE_HOST
+
+argocd account update-password --current-password $PASS --new-password admin
+

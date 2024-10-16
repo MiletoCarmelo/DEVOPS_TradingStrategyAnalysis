@@ -1,0 +1,12 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: ephemeral-pod-example  # Changed from generateName to name
+  namespace: quant-apps
+spec:
+  workflowTemplateRef:
+    name: ephemeral-pod-template
+  arguments:
+    parameters:
+      - name: message
+        value: "Custom message for this workflow"
