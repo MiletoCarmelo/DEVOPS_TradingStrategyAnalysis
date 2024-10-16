@@ -161,13 +161,16 @@ kubectl --namespace argo-events logs --selector app=json-ouput
 
 
 
-##### SETTUPPING TRADING-STRATEGY-ANALYSIS TO ARGO EVENTS & SENSOR #######
+
+########3 SETTUPPING TRADING-STRATEGY-ANALYSIS TO ARGO EVENTS & SENSOR ###################
+
+
+
 
 # NB : follow before : ARGO EVENTS WORKFOW & ARGO EVENTS INSTALLATION installations
 
 # create a new namespace (it doesnt necessary need to be into the namespace argo cd containing the app, actually it is better to be into another)
 kubectl create namespace quant-apps-events
-
 
 # install also events bus pod : 
 kubectl apply -n quant-apps-events -f https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/eventbus/native.yaml
@@ -179,8 +182,27 @@ kubectl apply -n quant-apps-events -f https://raw.githubusercontent.com/argoproj
 kubectl --namespace quant-apps-events apply --filename ./prod_event/event-source.yaml
 
 # an event source has been created (how to check):
-kubectl --namespace argo-events get eventsource
+kubectl --namespace quant-apps-events get eventsource
 # an service also has been created : 
-kubectl --namespace argo-events get service
+kubectl --namespace quant-apps-events get service
 # and pods : 
-kubectl --namespace argo-events get pods 
+kubectl --namespace quant-apps-events get pods 
+
+# portforward (NOT TO DO IN PRODUCTION USE THE LOADBALANCER METHOD), & to keep in background: 
+kubectl --namespace quant-apps-events \
+        port-forward webhook-eventsource-25fcw-788bdb9f4c-gxn9h 12000:12000 &
+
+# test to send a post request to the webhook : 
+curl -X POST http://localhost:12000/trading-strategy-analysis
+
+
+# apply the sensor : 
+kubectl --namespace quant-apps-events apply --filename ./prod_event/sensor.yaml
+# or apply the changes : 
+kubectl apply --filename ./prod_event/sensor.yaml -n quant-apps-events 
+
+
+# test again : 
+curl -X POST -H "Content-Type: application/json" \
+    -d '{"message": "My first webhook"}' \
+    http://localhost:12000/json

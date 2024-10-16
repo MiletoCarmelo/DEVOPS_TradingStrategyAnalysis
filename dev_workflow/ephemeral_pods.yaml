@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
   name: ephemeral-pod-template
-  namespace: quant-apps
+  namespace: argocd
 spec:
   templates:
   - name: create-pod
