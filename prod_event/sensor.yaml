@@ -35,3 +35,6 @@ spec:
           parameters:
             - src:
                 dependencyName: trading-strategy-analysis
+              dest: spec.containers.0.env.0.value  # This line was missing
+
+

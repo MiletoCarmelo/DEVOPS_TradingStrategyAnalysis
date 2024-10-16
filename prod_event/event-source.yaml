@@ -7,7 +7,7 @@ spec:
   service:
     ports:
       - port: 12000
-        targetPort: 8020
+        targetPort: 12000
   webhook:
     trading-strategy-analysis:
       port: "12000"
