@@ -6,10 +6,10 @@ metadata:
 spec:
   service:
     ports:
-      - port: 12010
-        targetPort: 12010
+      - port: 12345
+        targetPort: 12345
   webhook:
     trading-strategy-analysis-trigger:
-      port: "12010"
+      port: "12345"
       endpoint: "/trading-strategy-analysis"
       method: POST
