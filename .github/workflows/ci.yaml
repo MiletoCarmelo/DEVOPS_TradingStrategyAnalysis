@@ -40,10 +40,12 @@ jobs:
 
       - name: copy prod to deployment
         run: |
-          cp ./dev/* ./prod/
-          cp ./dev_workflow/* ./prod_workflow/
-          cp ./dev_event/* ./prod_event/
-  
+          cp ./dev/deployment.yaml ./prod/deployment.yaml
+          cp ./dev/service.yaml ./prod/service.yaml
+          cp ./dev_event/sensor.yaml ./prod_event/sensor.yaml
+          cp ./dev_event/event-source.yaml ./prod_event/event-source.yaml
+          cp ./dev_workflow/ephemeral_pods.yaml ./prod_workflow/ephemeral_pods.yaml
+          cp ./dev_workflow/websocket-server.yaml ./prod_workflow/websocket-server.yaml
 
       - name: Replace image placeholder in ./dev/deployment.yaml
         run: |
