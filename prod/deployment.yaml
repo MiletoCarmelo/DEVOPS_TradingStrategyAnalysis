@@ -2,9 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: trading-strategy-analysis-deployment
-  namespace: argocd  # Ensure this namespace exists
-  labels:
-    app: trading-strategy-analysis
+  namespace: quant-apps  # Ensure this namespace exists
 spec:
   selector:
     matchLabels:
