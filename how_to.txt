@@ -13,6 +13,32 @@ sudo lsof -i :<PORT>
 # then kill pids : 
 sudo kill -9 <PID>
 
+######################## INSTALL ARGO CLI ######################################
+
+# Download the binary
+curl -sLO https://github.com/argoproj/argo-workflows/releases/download/v3.5.11/argo-linux-amd64.gz
+
+# Unzip
+gunzip argo-linux-amd64.gz
+
+# Make binary executable
+chmod +x argo-linux-amd64
+
+# Move binary to path
+mv ./argo-linux-amd64 /usr/local/bin/argo
+
+# Test installation
+argo version
+
+######################## ARGO EVENTS WORKFOW #############################
+
+export ARGO_WORKFLOWS_VERSION=v3.5.4
+kubectl create namespace argo
+# kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/$ARGO_WORKFLOWS_VERSION/install.yaml
+kubectl apply -n argo -f "https://github.com/argoproj/argo-workflows/releases/download/${ARGO_WORKFLOWS_VERSION}/quick-start-minimal.yaml"
+
+kubectl -n argo port-forward deployment/argo-server 8095:2746 &
+
 ######################## ARGO CD INSTALLATION ##################################
 
 #installation : 
@@ -38,7 +64,6 @@ argocd login --insecure --username admin --password $PASS --grpc-web $BASE_HOST
 # update password to Admin123 (to keep the same on firefox):
 argocd account update-password --current-password $PASS --new-password Admin123
 
-
 ######################## ARGO CD ADD APP ##################################
  
 # kubectl create namespace argocd
@@ -62,12 +87,6 @@ kubectl get namespace argo-events -o json | jq '.spec.finalizers = []' | kubectl
 # create namespace : 
 kubectl create namespace argo-events
 
-######################## ARGO EVENTS WORKFOW #############################
-
-export ARGO_WORKFLOWS_VERSION=3.5.4
-kubectl create namespace argo
-kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/v$ARGO_WORKFLOWS_VERSION/install.yaml
-
 
 ######################## ARGO EVENTS INSTALLATION ########################
 
@@ -88,7 +107,9 @@ kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-
 # kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/event-sources/webhook.yaml
 # => cest le meme fichier que mon event-source.yaml dans (dev_event & prod_event)
 
-######################## ARGO EVENTS WEBHOOK TRIGGER #####################
+
+
+######################## EXEMPLE : ARGO EVENTS WEBHOOK TRIGGER #####################
 
 # github example repo 
 git clone https://github.com/vfarcic/argo-events-demo.git
@@ -183,6 +204,11 @@ kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-
 # setup event-sources for webhook: 
 kubectl --namespace argo-events apply --filename ./prod_event/event-source.yaml
 
+# apply the sensor : 
+kubectl --namespace argo-events apply --filename ./prod_event/sensor.yaml
+# or apply the changes : 
+kubectl -n argo-events  apply --filename ./prod_event/sensor.yaml
+
 # an event source has been created (how to check):
 kubectl --namespace argo-events get eventsource
 # an service also has been created : 
@@ -190,18 +216,13 @@ kubectl --namespace argo-events get service
 # and pods : 
 kubectl --namespace argo-events get pods 
 
+
 # portforward (NOT TO DO IN PRODUCTION USE THE LOADBALANCER METHOD), & to keep in background: 
 kubectl --namespace argo-events \
-        port-forward trading-strategy-analysis-webhook-eventsource-7v29r-fc897cpvv7g 12345:12345 &
+        port-forward <EVENTSOURCE NAME POD LIKE trading-strategy-analysis-webhook-eventsource-q4pj2-86bbfbm2r58 12345:12345 &
 
 # test to send a post request to the webhook : 
 curl -X POST http://localhost:12345/trading-strategy-analysis
-
-
-# apply the sensor : 
-kubectl --namespace argo-events apply --filename ./prod_event/sensor.yaml
-# or apply the changes : 
-kubectl -n argo-events  apply --filename ./prod_event/sensor.yaml
 
 
 # test again : 
@@ -210,6 +231,7 @@ curl -X POST -H "Content-Type: application/trading-strategy-analysis" \
     http://localhost:12345/trading-strategy-analysis
 
 # check the output : 
+kubectl logs <SENSOR NAME LIKE trading-strategy-analysis-kjxjs> -n argo-events
 kubectl --namespace argo-events logs --selector app=trading-strategy-analysis
 
 

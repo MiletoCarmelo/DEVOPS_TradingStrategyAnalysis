@@ -17,7 +17,7 @@ spec:
       - name: trading-strategy-analysis
         image: <<AAA>>  # Placeholder for image
         ports:
-        - containerPort: 8020  # Port the container listens on
+        - containerPort: 5000  # Port the container listens on
         env:
         - name: PORT
-          value: "8020"
+          value: "5000"
