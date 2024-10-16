@@ -168,17 +168,17 @@ kubectl --namespace argo-events logs --selector app=json-ouput
 
 # NB : follow before : ARGO EVENTS WORKFOW & ARGO EVENTS INSTALLATION installations
 
-
 # premier test dans le name space argo-events (si on change de namespace ne pas oublier de le changer dans chaque fichier!)
+
+kubectl create namespace argo-events
 
 kubectl apply -f https://raw.githubusercontent.com/argoproj/argo-events/stable/manifests/install.yaml
 
 # Install with a validating admission controller
 kubectl apply -f https://raw.githubusercontent.com/argoproj/argo-events/stable/manifests/install-validating-webhook.yaml
 
-
 # setup events-bus pod : 
-# kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/eventbus/native.yaml
+kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/eventbus/native.yaml
 
 # setup event-sources for webhook: 
 kubectl --namespace argo-events apply --filename ./prod_event/event-source.yaml
@@ -192,16 +192,16 @@ kubectl --namespace argo-events get pods
 
 # portforward (NOT TO DO IN PRODUCTION USE THE LOADBALANCER METHOD), & to keep in background: 
 kubectl --namespace argo-events \
-        port-forward trading-strategy-analysis-webhook-eventsource-7v29r-fc897cpvv7g 12235:12235 &
+        port-forward trading-strategy-analysis-webhook-eventsource-7v29r-fc897cpvv7g 12345:12345 &
 
 # test to send a post request to the webhook : 
 curl -X POST http://localhost:12345/trading-strategy-analysis
 
 
 # apply the sensor : 
-kubectl --namespace quant-apps-events apply --filename ./prod_event/sensor.yaml
+kubectl --namespace argo-events apply --filename ./prod_event/sensor.yaml
 # or apply the changes : 
-kubectl apply --filename ./prod_event/sensor.yaml -n quant-apps-events 
+kubectl -n argo-events  apply --filename ./prod_event/sensor.yaml
 
 
 # test again : 
@@ -210,7 +210,7 @@ curl -X POST -H "Content-Type: application/trading-strategy-analysis" \
     http://localhost:12345/trading-strategy-analysis
 
 # check the output : 
-kubectl --namespace quant-apps-events logs --selector app=trading-strategy-analysis
+kubectl --namespace argo-events logs --selector app=trading-strategy-analysis
 
 
 # get all info : 
