@@ -29,5 +29,5 @@ kubectl port-forward service/trading-strategy-analysis-service 8020:8020 -n quan
 # go into apps : 
 
 argo workflow : https://localhost:8095
-argo cd : https://localhost:8095
+argo cd : https://localhost:8090
 app : argo cd : https://localhost:8020
