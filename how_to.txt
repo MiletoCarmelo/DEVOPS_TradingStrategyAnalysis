@@ -166,15 +166,20 @@ kubectl --namespace argo-events logs --selector app=json-ouput
 ########3 SETTUPPING TRADING-STRATEGY-ANALYSIS TO ARGO EVENTS & SENSOR ###################
 
 
-
-
 # NB : follow before : ARGO EVENTS WORKFOW & ARGO EVENTS INSTALLATION installations
 
-# create a new namespace (it doesnt necessary need to be into the namespace argo cd containing the app, actually it is better to be into another)
-kubectl create namespace quant-apps-events
+
+# premier test dans le name space argo-events (si on change de namespace ne pas oublier de le changer dans chaque fichier!)
+
+kubectl apply -f https://raw.githubusercontent.com/argoproj/argo-events/stable/manifests/install.yaml
+
+# Install with a validating admission controller
+kubectl apply -f https://raw.githubusercontent.com/argoproj/argo-events/stable/manifests/install-validating-webhook.yaml
+
 
 # setup events-bus pod : 
-kubectl apply -n quant-apps-events -f ./prod_event/event-bus.yaml
+kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/eventbus/native.yaml
+
 
 # setup event-sources for webhook: 
 kubectl --namespace quant-apps-events apply --filename ./prod_event/event-source.yaml

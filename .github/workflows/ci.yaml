@@ -44,7 +44,6 @@ jobs:
           cp ./dev/service.yaml ./prod/service.yaml
           cp ./dev_event/sensor.yaml ./prod_event/sensor.yaml
           cp ./dev_event/event-source.yaml ./prod_event/event-source.yaml
-          cp ./dev_event/event-bus.yaml ./prod_event/event-bus.yaml
           cp ./dev_workflow/ephemeral_pods.yaml ./prod_workflow/ephemeral_pods.yaml
           cp ./dev_workflow/websocket-server.yaml ./prod_workflow/websocket-server.yaml
 
