@@ -158,3 +158,29 @@ kubectl logs <SENSOR NAME LIKE webhook-sensor-7p9ss-7c8c475b5d-9xcrm> -n argo-ev
 
 # check the output of the pod created ephemerial : 
 kubectl --namespace argo-events logs --selector app=json-ouput
+
+
+
+##### SETTUPPING TRADING-STRATEGY-ANALYSIS TO ARGO EVENTS & SENSOR #######
+
+# NB : follow before : ARGO EVENTS WORKFOW & ARGO EVENTS INSTALLATION installations
+
+# create a new namespace (it doesnt necessary need to be into the namespace argo cd containing the app, actually it is better to be into another)
+kubectl create namespace quant-apps-events
+
+
+# install also events bus pod : 
+kubectl apply -n quant-apps-events -f https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/eventbus/native.yaml
+
+# setup event-sources for webhook: 
+kubectl apply -n quant-apps-events -f https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/event-sources/webhook.yaml
+
+# create event : 
+kubectl --namespace quant-apps-events apply --filename ./prod_event/event-source.yaml
+
+# an event source has been created (how to check):
+kubectl --namespace argo-events get eventsource
+# an service also has been created : 
+kubectl --namespace argo-events get service
+# and pods : 
+kubectl --namespace argo-events get pods 

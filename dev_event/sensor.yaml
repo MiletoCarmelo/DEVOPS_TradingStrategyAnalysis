@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Sensor
 metadata:
   name: trading-strategy-sensor
-  namespace: quant-apps
+  namespace: quant-apps-events
 spec:
   dependencies:
     - name: trading-strategy-trigger
