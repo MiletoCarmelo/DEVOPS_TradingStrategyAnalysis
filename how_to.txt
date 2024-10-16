@@ -176,7 +176,7 @@ kubectl create namespace quant-apps-events
 kubectl apply -n quant-apps-events -f https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/eventbus/native.yaml
 
 # setup event-sources for webhook: 
-kubectl apply -n quant-apps-events -f https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/event-sources/webhook.yaml
+# kubectl apply -n quant-apps-events -f https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/event-sources/webhook.yaml
 
 # create event : 
 kubectl --namespace quant-apps-events apply --filename ./prod_event/event-source.yaml
@@ -190,7 +190,7 @@ kubectl --namespace quant-apps-events get pods
 
 # portforward (NOT TO DO IN PRODUCTION USE THE LOADBALANCER METHOD), & to keep in background: 
 kubectl --namespace quant-apps-events \
-        port-forward webhook-eventsource-25fcw-788bdb9f4c-gxn9h 12000:12000 &
+        port-forward trading-strategy-analysis-webhook-eventsource-7kp4b-859bf69b24q 12000:12000 &
 
 # test to send a post request to the webhook : 
 curl -X POST http://localhost:12000/trading-strategy-analysis
@@ -203,6 +203,14 @@ kubectl apply --filename ./prod_event/sensor.yaml -n quant-apps-events
 
 
 # test again : 
-curl -X POST -H "Content-Type: application/json" \
+curl -X POST -H "Content-Type: application/trading-strategy-analysis" \
     -d '{"message": "My first webhook"}' \
-    http://localhost:12000/json
+    http://localhost:12000/trading-strategy-analysis
+
+# check the output : 
+kubectl --namespace quant-apps-events logs --selector app=trading-strategy-analysis
+
+
+# get all info : 
+kubectl get all -n quant-apps-events
+kubectl get deployments --namespace quant-apps-events
