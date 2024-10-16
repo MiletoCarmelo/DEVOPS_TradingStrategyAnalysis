@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: EventSource
 metadata:
   name: trading-strategy-analysis-webhook
-  namespace: quant-apps-events
+  namespace: argo-events
 spec:
   service:
     ports:
