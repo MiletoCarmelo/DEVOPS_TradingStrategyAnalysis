@@ -30,7 +30,10 @@ spec:
                     image: <<AAA>>
                     command: ["python3", "app.py"]
                     ports:
-                      - containerPort: 12000
+                      - containerPort: 8020
+                    env:
+                      - name: PORT
+                        value: "8020"
                 restartPolicy: Never
           parameters:
             - src:
