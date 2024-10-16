@@ -8,7 +8,7 @@ spec:
     app: trading-strategy-analysis  # Should match the deployment's labels
   type: ClusterIP  # Optional, default is ClusterIP
   ports:
-  - port: 8020  # Port the service listens on
+  - port: 5000  # Port the service listens on
     protocol: TCP
     targetPort: 5000  # Should match the container's port
 
