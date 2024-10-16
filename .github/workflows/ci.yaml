@@ -41,7 +41,7 @@ jobs:
       - name: prid ls -l
         run: ls -l
       
-      - nam: print pwd
+      - name: print pwd
         run: pwd
 
       - name: copy prod to deployment
