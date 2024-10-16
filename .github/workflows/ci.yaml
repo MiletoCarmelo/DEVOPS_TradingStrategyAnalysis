@@ -38,6 +38,12 @@ jobs:
       - name: Print IMAGE_NAME
         run: echo "${{ env.IMAGE_NAME }}"
 
+      - name: prid ls -l
+        run: ls -l
+      
+      - nam: print pwd
+        run: pwd
+
       - name: copy prod to deployment
         run: |
           cp ./dev/* ./prod/
