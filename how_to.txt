@@ -178,21 +178,20 @@ kubectl apply -f https://raw.githubusercontent.com/argoproj/argo-events/stable/m
 
 
 # setup events-bus pod : 
-kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/eventbus/native.yaml
-
+# kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/eventbus/native.yaml
 
 # setup event-sources for webhook: 
-kubectl --namespace quant-apps-events apply --filename ./prod_event/event-source.yaml
+kubectl --namespace argo-events apply --filename ./prod_event/event-source.yaml
 
 # an event source has been created (how to check):
-kubectl --namespace quant-apps-events get eventsource
+kubectl --namespace argo-events get eventsource
 # an service also has been created : 
-kubectl --namespace quant-apps-events get service
+kubectl --namespace argo-events get service
 # and pods : 
-kubectl --namespace quant-apps-events get pods 
+kubectl --namespace argo-events get pods 
 
 # portforward (NOT TO DO IN PRODUCTION USE THE LOADBALANCER METHOD), & to keep in background: 
-kubectl --namespace quant-apps-events \
+kubectl --namespace argo-events \
         port-forward trading-strategy-analysis-webhook-eventsource-7v29r-fc897cpvv7g 12235:12235 &
 
 # test to send a post request to the webhook : 
