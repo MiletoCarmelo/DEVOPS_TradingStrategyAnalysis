@@ -1,6 +1,10 @@
 
 ######################## DOCKER AND MINIKUBE ####3###############################
 
+sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
+
+
 minikube status 
 minikube stop 
 minikube start
@@ -86,6 +90,9 @@ kubectl get namespace argo-events -o json | jq '.spec.finalizers = []' | kubectl
 
 # create namespace : 
 kubectl create namespace argo-events
+
+# delete a pod in a namespace :
+kubectl delete pod <pod-name> -n <namespace-name>
 
 
 ######################## ARGO EVENTS INSTALLATION ########################
@@ -219,16 +226,22 @@ kubectl --namespace argo-events get pods
 
 # portforward (NOT TO DO IN PRODUCTION USE THE LOADBALANCER METHOD), & to keep in background: 
 kubectl --namespace argo-events \
-        port-forward <EVENTSOURCE NAME POD LIKE trading-strategy-analysis-webhook-eventsource-q4pj2-86bbfbm2r58 12345:12345 &
+        port-forward <EVENTSOURCE NAME POD LIKE trading-strategy-analysis-webhook-eventsource-q4pj2-86bbfbm2r58 5000:5000 &
+
+# faire plutot cela pour l'exposition du port en passant par le nom du service:
+#       => toutes les app sont en 5000 
+#       => toutefois lexposition changera 8080,8081,8082,...
+kubectl get services -n argo-events
+kubectl port-forward service/trading-strategy-analysis-webhook-eventsource-svc 8082:5000 -n argo-events
 
 # test to send a post request to the webhook : 
-curl -X POST http://localhost:12345/trading-strategy-analysis
+curl -X POST http://localhost:5000/trading-strategy-analysis
 
 
 # test again : 
 curl -X POST -H "Content-Type: application/trading-strategy-analysis" \
     -d '{"message": "My first webhook"}' \
-    http://localhost:12345/trading-strategy-analysis
+    http://localhost:5000/trading-strategy-analysis
 
 # check the output : 
 kubectl logs <SENSOR NAME LIKE trading-strategy-analysis-kjxjs> -n argo-events
