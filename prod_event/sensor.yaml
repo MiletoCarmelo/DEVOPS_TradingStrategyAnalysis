@@ -4,10 +4,12 @@ metadata:
   name: trading-strategy-analysis-webhook
   namespace: quant-apps-events
 spec:
+  template:
+    serviceAccountName: argo-events-sa
   dependencies:
     - name: trading-strategy-analysis
       eventSourceName: trading-strategy-analysis-webhook
-      eventName: trading-strategy-analysis
+      eventName: trading-strategy-analysis-trigger
   triggers:
     - template:
         name: trading-strategy-analysis
