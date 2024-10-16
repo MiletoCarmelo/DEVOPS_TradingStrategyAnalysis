@@ -30,7 +30,10 @@ spec:
                     image: ghcr.io/miletocarmelo/tradingstrategyanalysis:latest
                     command: ["python3", "app.py"]
                     ports:
-                      - containerPort: 12000
+                      - containerPort: 8020
+                    env:
+                      - name: PORT
+                        value: "8020"
                 restartPolicy: Never
           parameters:
             - src:

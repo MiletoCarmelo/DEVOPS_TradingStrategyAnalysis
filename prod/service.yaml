@@ -10,7 +10,8 @@ spec:
   ports:
   - port: 8020  # Port the service listens on
     protocol: TCP
-    targetPort: 5000  # Should match the container's port
+    targetPort: 8020  # Should match the container's port
+    
 
 
 # ne pas oublier de lancer le port-forwarding : 
