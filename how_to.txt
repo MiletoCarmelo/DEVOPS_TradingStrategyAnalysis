@@ -41,9 +41,9 @@ argocd account update-password --current-password $PASS --new-password Admin123
 
 ######################## ARGO CD ADD APP ##################################
  
-kubectl create namespace quant-apps
+# kubectl create namespace argocd
 
-kubectl apply -n quant-apps -f application.yaml
+kubectl apply -n argocd -f application.yaml
 
 ######################## KUBE NAMESPACE ##################################
 
