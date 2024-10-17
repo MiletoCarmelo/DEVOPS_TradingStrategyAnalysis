@@ -13,3 +13,7 @@ spec:
       port: "8080"
       endpoint: "/trading-strategy-analysis"
       method: GET
+
+# to test the webhook, you can use the following command:
+# if GET method :  curl http://your-endpoint:8080/trading-strategy-analysis
+# if POST method : curl -X POST -H "Content-Type: application/json" -d '{}' http://your-endpoint:8080/trading-strategy-analysis
