@@ -7,46 +7,47 @@ spec:
   entrypoint: create-and-redirect
   arguments:
     parameters:
-      - name: pod-name
+      - name: base-name
+        value: "trading-strategy-analysis"
   templates:
     - name: create-and-redirect
       steps:
-        - - name: generate-compliant-name
-            template: generate-compliant-name
+        - - name: generate-unique-name
+            template: generate-unique-name
             arguments:
               parameters:
-                - name: pod-name
-                  value: "{{workflow.parameters.pod-name}}"
+                - name: base-name
+                  value: "{{workflow.parameters.base-name}}"
         - - name: create-pod
             template: create-pod
             arguments:
               parameters:
-                - name: compliant-pod-name
-                  value: "{{steps.generate-compliant-name.outputs.result}}"
+                - name: pod-name
+                  value: "{{steps.generate-unique-name.outputs.result}}"
         - - name: wait-for-pod
             template: wait-for-pod
             arguments:
               parameters:
                 - name: pod-name
-                  value: "{{steps.generate-compliant-name.outputs.result}}"
+                  value: "{{steps.generate-unique-name.outputs.result}}"
         - - name: log-pod-ready
             template: log
             arguments:
               parameters:
                 - name: message
-                  value: "Pod {{steps.generate-compliant-name.outputs.result}} is ready"
+                  value: "Pod {{steps.generate-unique-name.outputs.result}} is ready"
         - - name: tail-logs
             template: tail-logs
             arguments:
               parameters:
                 - name: pod-name
-                  value: "{{steps.generate-compliant-name.outputs.result}}"
+                  value: "{{steps.generate-unique-name.outputs.result}}"
         - - name: redirect
             template: redirect
             arguments:
               parameters:
                 - name: pod-name
-                  value: "{{steps.generate-compliant-name.outputs.result}}"
+                  value: "{{steps.generate-unique-name.outputs.result}}"
         - - name: log-redirect
             template: log
             arguments:
@@ -54,39 +55,43 @@ spec:
                 - name: message
                   value: "Redirected to: {{steps.redirect.outputs.result}}"
     
-    - name: generate-compliant-name
+    - name: generate-unique-name
       inputs:
         parameters:
-          - name: pod-name
+          - name: base-name
       script:
         image: python:alpine3.6
         command: [python]
         source: |
           import sys
           import re
+          import uuid
           
-          original_name = "{{inputs.parameters.pod-name}}".lower()
+          base_name = "{{inputs.parameters.base-name}}".lower()
           # Replace any character that's not alphanumeric, '-', or '.' with '-'
-          compliant_name = re.sub(r'[^a-z0-9\-\.]', '-', original_name)
+          clean_name = re.sub(r'[^a-z0-9\-\.]', '-', base_name)
           # Ensure it starts and ends with an alphanumeric character
-          compliant_name = re.sub(r'^[^a-z0-9]+', '', compliant_name)
-          compliant_name = re.sub(r'[^a-z0-9]+$', '', compliant_name)
+          clean_name = re.sub(r'^[^a-z0-9]+', '', clean_name)
+          clean_name = re.sub(r'[^a-z0-9]+$', '', clean_name)
           # If the name is empty after cleaning, use a default name
-          if not compliant_name:
-              compliant_name = "trading-strategy-analysis"
+          if not clean_name:
+              clean_name = "trading-strategy-analysis"
           
-          with open('/tmp/compliant-name', 'w') as f:
-              f.write(compliant_name)
+          # Append a short UUID to ensure uniqueness
+          unique_name = f"{clean_name}-{uuid.uuid4().hex[:6]}"
+          
+          with open('/tmp/unique-name', 'w') as f:
+              f.write(unique_name)
       outputs:
         parameters:
           - name: result
             valueFrom:
-              path: /tmp/compliant-name
+              path: /tmp/unique-name
     
     - name: create-pod
       inputs:
         parameters:
-          - name: compliant-pod-name
+          - name: pod-name
       resource:
         action: create
         setOwnerReference: true
@@ -94,7 +99,7 @@ spec:
           apiVersion: v1
           kind: Pod
           metadata:
-            name: "{{inputs.parameters.compliant-pod-name}}"
+            name: "{{inputs.parameters.pod-name}}"
             labels:
               app: trading-strategy-analysis
           spec:
