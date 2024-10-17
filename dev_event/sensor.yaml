@@ -69,6 +69,6 @@ spec:
         log:
           intervalSeconds: 20
           message: |
-            Received event: 
-            Payload: {{ .Input.payload | toJson }}
-            EventContext: {{ .Input.eventContext | toJson }}
+            Received event:
+             Payload: {{ .Input.payload | toJson }}
+             EventContext: {{ .Input.eventContext | toJson }}
