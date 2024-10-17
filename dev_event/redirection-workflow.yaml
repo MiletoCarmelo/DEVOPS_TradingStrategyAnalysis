@@ -70,7 +70,7 @@ spec:
           apiVersion: argoproj.io/v1alpha1
           kind: Workflow
           metadata:
-            name: "{{inputs.parameters.child-name}}"
+            generateName: "{{inputs.parameters.child-name}}-"
             namespace: {{workflow.namespace}}
           spec:
             entrypoint: child-main
@@ -91,7 +91,7 @@ spec:
                     apiVersion: v1
                     kind: Pod
                     metadata:
-                      name: "{{workflow.name}}-pod"
+                      generateName: "{{workflow.name}}-pod-"
                       labels:
                         app: trading-strategy-analysis
                     spec:
@@ -109,7 +109,7 @@ spec:
                     apiVersion: v1
                     kind: Pod
                     metadata:
-                      name: "{{workflow.name}}-pod"
+                      name: "{{tasks.create-pod.outputs.resourceName}}"
                       namespace: {{workflow.namespace}}
               - name: do-work
                 container:
