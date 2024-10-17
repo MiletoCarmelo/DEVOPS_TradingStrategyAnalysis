@@ -40,7 +40,7 @@ spec:
           apiVersion: v1
           kind: Pod
           metadata:
-            name: "{{workflow.parameters.pod-name}}"
+            name: "{{workflow.parameters.pod-name | tolower}}"
             labels:
               app: trading-strategy-analysis
           spec:
