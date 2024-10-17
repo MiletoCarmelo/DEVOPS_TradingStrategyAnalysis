@@ -5,39 +5,20 @@ metadata:
   namespace: argo-events
 spec:
   entrypoint: create-and-redirect
+  arguments:
+    parameters:
+      - name: pod-name
   templates:
     - name: create-and-redirect
       steps:
-        - - name: log-start
-            template: log
-            arguments:
-              parameters:
-                - name: message
-                  value: "Starting workflow execution"
         - - name: create-pod
             template: create-pod
-        - - name: log-pod-created
-            template: log
-            arguments:
-              parameters:
-                - name: message
-                  value: "Pod created: {{steps.create-pod.outputs.result}}"
         - - name: wait-for-pod
             template: wait-for-pod
-        - - name: log-pod-ready
-            template: log
-            arguments:
-              parameters:
-                - name: message
-                  value: "Pod is ready: {{steps.wait-for-pod.outputs.result}}"
+        - - name: tail-logs
+            template: tail-logs
         - - name: redirect
             template: redirect
-        - - name: log-end
-            template: log
-            arguments:
-              parameters:
-                - name: message
-                  value: "Workflow completed, redirected to: {{steps.redirect.outputs.result}}"
 
     - name: create-pod
       resource:
@@ -47,7 +28,7 @@ spec:
           apiVersion: v1
           kind: Pod
           metadata:
-            generateName: trading-strategy-analysis-
+            name: "{{workflow.parameters.pod-name}}"
             labels:
               app: trading-strategy-analysis
           spec:
@@ -56,11 +37,6 @@ spec:
               image: ghcr.io/miletocarmelo/tradingstrategyanalysis:latest
               ports:
               - containerPort: 8080
-      outputs:
-        parameters:
-          - name: result
-            valueFrom:
-              jsonPath: '{.metadata.name}'
 
     - name: wait-for-pod
       resource:
@@ -71,28 +47,15 @@ spec:
           apiVersion: v1
           kind: Pod
           metadata:
-            name: "{{steps.create-pod.outputs.result}}"
+            name: "{{workflow.parameters.pod-name}}"
             namespace: {{workflow.namespace}}
-      outputs:
-        parameters:
-          - name: result
-            valueFrom:
-              jsonPath: '{.status.podIP}'
+
+    - name: tail-logs
+      container:
+        image: bitnami/kubectl
+        command: [sh, -c]
+        args: ["kubectl logs -f {{workflow.parameters.pod-name}} -n {{workflow.namespace}}"]
 
     - name: redirect
       http:
-        url: "http://{{steps.wait-for-pod.outputs.result}}:8080"
-      outputs:
-        parameters:
-          - name: result
-            valueFrom:
-              path: /url
-
-    - name: log
-      inputs:
-        parameters:
-          - name: message
-      container:
-        image: alpine:3.14
-        command: [echo]
-        args: ["{{inputs.parameters.message}}"]
+        url: "http://{{workflow.parameters.pod-name}}:8080"
