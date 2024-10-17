@@ -13,6 +13,10 @@ spec:
       steps:
         - - name: generate-compliant-name
             template: generate-compliant-name
+            arguments:
+              parameters:
+                - name: pod-name
+                  value: "{{workflow.parameters.pod-name}}"
         - - name: create-pod
             template: create-pod
             arguments:
@@ -51,6 +55,9 @@ spec:
                   value: "Redirected to: {{steps.redirect.outputs.result}}"
     
     - name: generate-compliant-name
+      inputs:
+        parameters:
+          - name: pod-name
       script:
         image: python:alpine3.6
         command: [python]
@@ -58,7 +65,7 @@ spec:
           import sys
           import re
           
-          original_name = sys.argv[1].lower()
+          original_name = "{{inputs.parameters.pod-name}}".lower()
           # Replace any character that's not alphanumeric, '-', or '.' with '-'
           compliant_name = re.sub(r'[^a-z0-9\-\.]', '-', original_name)
           # Ensure it starts and ends with an alphanumeric character
@@ -70,9 +77,6 @@ spec:
           
           with open('/tmp/compliant-name', 'w') as f:
               f.write(compliant_name)
-      inputs:
-        parameters:
-          - name: pod-name
       outputs:
         parameters:
           - name: result
