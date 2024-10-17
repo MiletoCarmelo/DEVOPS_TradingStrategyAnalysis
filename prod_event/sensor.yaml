@@ -67,7 +67,7 @@ spec:
                 arguments:
                   parameters:
                     - name: pod-name
-                      value: "trading-strategy-analysis-{{generateName}}"
+                      value: "trading-strategy-analysis-"
     - template:
         name: log-trigger
         log:
