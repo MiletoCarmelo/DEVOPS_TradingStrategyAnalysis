@@ -4,66 +4,139 @@ metadata:
   name: trading-strategy-analysis-template
   namespace: argo-events
 spec:
-  entrypoint: create-and-redirect
+  entrypoint: main
+  arguments:
+    parameters:
+      - name: base-name
+        value: "trading-strategy-analysis"
   templates:
-    - name: create-and-redirect
+    - name: main
       steps:
-        - - name: create-pod
-            template: create-pod
-        - - name: wait-for-pod
-            template: wait-for-pod
-        - - name: redirect
-            template: redirect
-        - - name: log-redirect
-            template: log
+        - - name: generate-unique-name
+            template: generate-unique-name
             arguments:
               parameters:
-                - name: message
-                  value: "Redirected to: {{steps.redirect.outputs.result}}"
-
-    - name: create-pod
-      resource:
-        action: create
-        setOwnerReference: true
-        manifest: |
-          apiVersion: v1
-          kind: Pod
-          metadata:
-            generateName: trading-strategy-analysis-
-            labels:
-              app: trading-strategy-analysis
-          spec:
-            containers:
-            - name: trading-strategy-analysis
-              image: ghcr.io/miletocarmelo/tradingstrategyanalysis:latest  # Replace with your actual image
-              ports:
-              - containerPort: 8080
-              env:
-              - name: PORT
-                value: "8080"
-            restartPolicy: Never
-
-    - name: wait-for-pod
-      resource:
-        action: get
-        successCondition: status.phase == Running
-        failureCondition: status.phase in (Failed, Unknown)
-        manifest: |
-          apiVersion: v1
-          kind: Pod
-          metadata:
-            name: "{{steps.create-pod.outputs.name}}"
-            namespace: {{workflow.namespace}}
-
-    - name: redirect
-      http:
-        url: "http://{{steps.wait-for-pod.outputs.response.status.podIP}}:8080"
+                - name: base-name
+                  value: "{{workflow.parameters.base-name}}"
+        - - name: create-and-run-child
+            template: create-and-run-child
+            arguments:
+              parameters:
+                - name: child-name
+                  value: "{{steps.generate-unique-name.outputs.result}}"
+        - - name: check-child-status
+            template: check-child-status
+            arguments:
+              parameters:
+                - name: child-name
+                  value: "{{steps.generate-unique-name.outputs.result}}"
+    
+    - name: generate-unique-name
+      inputs:
+        parameters:
+          - name: base-name
+      script:
+        image: python:alpine3.6
+        command: [python]
+        source: |
+          import re
+          import uuid
+          
+          base_name = "{{inputs.parameters.base-name}}".lower()
+          clean_name = re.sub(r'[^a-z0-9\-\.]', '-', base_name)
+          clean_name = re.sub(r'^[^a-z0-9]+', '', clean_name)
+          clean_name = re.sub(r'[^a-z0-9]+$', '', clean_name)
+          if not clean_name:
+              clean_name = "trading-strategy-analysis"
+          
+          unique_name = f"{clean_name}-{uuid.uuid4().hex[:6]}"
+          
+          with open('/tmp/unique-name', 'w') as f:
+              f.write(unique_name)
       outputs:
         parameters:
           - name: result
             valueFrom:
-              path: /url
-
+              path: /tmp/unique-name
+    
+    - name: create-and-run-child
+      inputs:
+        parameters:
+          - name: child-name
+      resource:
+        action: create
+        setOwnerReference: true
+        manifest: |
+          apiVersion: argoproj.io/v1alpha1
+          kind: Workflow
+          metadata:
+            name: "{{inputs.parameters.child-name}}"
+            namespace: {{workflow.namespace}}
+          spec:
+            entrypoint: child-main
+            templates:
+              - name: child-main
+                steps:
+                  - - name: create-pod
+                      template: create-pod
+                  - - name: wait-for-pod
+                      template: wait-for-pod
+                  - - name: do-work
+                      template: do-work
+              - name: create-pod
+                resource:
+                  action: create
+                  setOwnerReference: true
+                  manifest: |
+                    apiVersion: v1
+                    kind: Pod
+                    metadata:
+                      name: "{{workflow.name}}-pod"
+                      labels:
+                        app: trading-strategy-analysis
+                    spec:
+                      containers:
+                      - name: trading-strategy-analysis
+                        image: ghcr.io/miletocarmelo/tradingstrategyanalysis:latest
+                        ports:
+                        - containerPort: 8080
+              - name: wait-for-pod
+                resource:
+                  action: get
+                  successCondition: status.phase == Running
+                  failureCondition: status.phase in (Failed, Unknown)
+                  manifest: |
+                    apiVersion: v1
+                    kind: Pod
+                    metadata:
+                      name: "{{workflow.name}}-pod"
+                      namespace: {{workflow.namespace}}
+              - name: do-work
+                container:
+                  image: ghcr.io/miletocarmelo/tradingstrategyanalysis:latest
+                  command: [sh, -c]
+                  args: ["echo 'Performing analysis'; sleep 10; echo 'Analysis complete'"]
+    
+    - name: check-child-status
+      inputs:
+        parameters:
+          - name: child-name
+      resource:
+        action: get
+        successCondition: status.phase == Succeeded
+        failureCondition: status.phase in (Failed, Error)
+        manifest: |
+          apiVersion: argoproj.io/v1alpha1
+          kind: Workflow
+          metadata:
+            name: "{{inputs.parameters.child-name}}"
+            namespace: {{workflow.namespace}}
+      outputs:
+        parameters:
+          - name: status
+            valueFrom:
+              jsonPath: '{.status.phase}'
+    
     - name: log
       inputs:
         parameters:
