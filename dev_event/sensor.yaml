@@ -1,40 +1,66 @@
+# apiVersion: argoproj.io/v1alpha1
+# kind: Sensor
+# metadata:
+#   name: trading-strategy-analysis-webhook
+#   namespace: argo-events
+# spec:
+#   template:
+#     serviceAccountName: argo-events-sa
+#   dependencies:
+#     - name: trading-strategy-analysis
+#       eventSourceName: trading-strategy-analysis-webhook
+#       eventName: trading-strategy-analysis-trigger
+#   triggers:
+#     - template:
+#         name: trading-strategy-analysis
+#         k8s:
+#           operation: create
+#           source:
+#             resource:
+#               apiVersion: v1
+#               kind: Pod
+#               metadata:
+#                 generateName: trading-strategy-analysis-
+#                 labels:
+#                   app: trading-strategy-analysis
+#               spec:
+#                 containers:
+#                   - name: trading-strategy-analysis
+#                     image: <<AAA>>
+#                     # command: ["python3", "app.py"] => it is already defined in the Dockerfile
+#                     ports:
+#                       - containerPort: 8080
+#                     env:
+#                       - name: PORT
+#                         value: "8080"
+#                 restartPolicy: Never
+#         parameters:
+#           - src:
+#               dependencyName: trading-strategy-analysis
+#             dest: spec.containers.0.env.0.value
+
+
 apiVersion: argoproj.io/v1alpha1
 kind: Sensor
 metadata:
-  name: trading-strategy-analysis-webhook
+  name: trading-strategy-analysis-sensor
   namespace: argo-events
 spec:
-  template:
-    serviceAccountName: argo-events-sa
   dependencies:
-    - name: trading-strategy-analysis
+    - name: trading-strategy-analysis-dep
       eventSourceName: trading-strategy-analysis-webhook
-      eventName: trading-strategy-analysis-trigger
+      eventName: trading-strategy-analysis
   triggers:
     - template:
-        name: trading-strategy-analysis
+        name: trading-strategy-analysis-trigger
         k8s:
           operation: create
           source:
             resource:
-              apiVersion: v1
-              kind: Pod
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
               metadata:
                 generateName: trading-strategy-analysis-
-                labels:
-                  app: trading-strategy-analysis
               spec:
-                containers:
-                  - name: trading-strategy-analysis
-                    image: <<AAA>>
-                    # command: ["python3", "app.py"] => it is already defined in the Dockerfile
-                    ports:
-                      - containerPort: 8080
-                    env:
-                      - name: PORT
-                        value: "8080"
-                restartPolicy: Never
-        parameters:
-          - src:
-              dependencyName: trading-strategy-analysis
-            dest: spec.containers.0.env.0.value
+                workflowTemplateRef:
+                  name: trading-strategy-analysis-template
