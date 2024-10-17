@@ -224,6 +224,8 @@ kubectl apply -f install.yaml
 rm install.yaml
 # check argo server installed : 
 kubectl get pods -n argo-events
+# forward port : 
+kubectl -n argo-events port-forward deployment/argo-server 8075:2746 &
 
 
 # setup event-sources for webhook: 
