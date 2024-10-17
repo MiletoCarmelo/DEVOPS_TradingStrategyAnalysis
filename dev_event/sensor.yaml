@@ -68,3 +68,11 @@ spec:
                   parameters:
                     - name: pod-name
                       value: "trading-strategy-analysis-{{generateName}}"
+    - template:
+        name: log-trigger
+        log:
+          intervalSeconds: 20
+          message: |
+            Received event: 
+            Payload: {{ .Input.payload | toJson }}
+            EventContext: {{ .Input.eventContext | toJson }}
