@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: trading-strategy-analysis-deployment
-  namespace: argocd  # Ensure this namespace exists
+  namespace: argo-events # argocd  # Ensure this namespace exists
 spec:
   selector:
     matchLabels:

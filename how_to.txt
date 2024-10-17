@@ -219,6 +219,11 @@ kubectl --namespace argo-events apply --filename ./prod_event/sensor.yaml
 # or apply the changes : 
 kubectl -n argo-events  apply --filename ./prod_event/sensor.yaml
 
+# setup the ingress : 
+kubectl --namespace argo-events apply --filename ./prod_event/ingress.yaml
+# or apply the changes : 
+kubectl -n argo-events  apply --filename ./prod_event/ingress.yaml
+
 # an event source has been created (how to check):
 kubectl --namespace argo-events get eventsource
 # an service also has been created : 
