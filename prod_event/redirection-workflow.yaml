@@ -83,6 +83,10 @@ spec:
                       template: create-pod
                   - - name: wait-for-pod
                       template: wait-for-pod
+                      arguments:
+                        parameters:
+                          - name: pod-name
+                            value: "{{steps.create-pod.outputs.parameters.pod-name}}"
                   - - name: do-work
                       template: do-work
               - name: create-pod
