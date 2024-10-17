@@ -64,10 +64,6 @@ spec:
               spec:
                 workflowTemplateRef:
                   name: trading-strategy-analysis-template
-                arguments:
-                  parameters:
-                    - name: base-name
-                      value: "trading-strategy-analysis-"
     - template:
         name: log-trigger
         log:
