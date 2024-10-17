@@ -15,10 +15,22 @@ spec:
             template: create-pod
         - - name: wait-for-pod
             template: wait-for-pod
+        - - name: log-pod-ready
+            template: log
+            arguments:
+              parameters:
+                - name: message
+                  value: "Pod {{workflow.parameters.pod-name}} is ready"
         - - name: tail-logs
             template: tail-logs
         - - name: redirect
             template: redirect
+        - - name: log-redirect
+            template: log
+            arguments:
+              parameters:
+                - name: message
+                  value: "Redirected to: {{steps.redirect.outputs.result}}"
 
     - name: create-pod
       resource:
@@ -54,8 +66,22 @@ spec:
       container:
         image: bitnami/kubectl
         command: [sh, -c]
-        args: ["kubectl logs -f {{workflow.parameters.pod-name}} -n {{workflow.namespace}}"]
+        args: ["kubectl logs -f {{workflow.parameters.pod-name}} -n {{workflow.namespace}} & sleep 30; kill %1"]
 
     - name: redirect
       http:
         url: "http://{{workflow.parameters.pod-name}}:8080"
+      outputs:
+        parameters:
+          - name: result
+            valueFrom:
+              path: /url
+
+    - name: log
+      inputs:
+        parameters:
+          - name: message
+      container:
+        image: alpine
+        command: [echo]
+        args: ["{{inputs.parameters.message}}"]
