@@ -61,6 +61,9 @@ jobs:
         run: |
           sed -i "s|<<AAA>>|${{ env.REGISTRY_NAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}|g" ./prod_event/sensor.yaml
 
+      - name: Replace image placeholder in ./dev_event/deploy-workflow.yaml
+        run: |
+          sed -i "s|<<AAA>>|${{ env.REGISTRY_NAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}|g" ./prod_event/deploy-workflow.yaml
 
       - name: Replace image placeholder in ./dev_workflow/websocket-server.yaml
         run: |
