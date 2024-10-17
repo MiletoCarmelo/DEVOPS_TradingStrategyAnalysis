@@ -81,6 +81,10 @@ spec:
                       template: create-pod
                   - - name: wait-for-pod
                       template: wait-for-pod
+                      arguments:
+                        parameters:
+                          - name: pod-name
+                            value: "{{steps.create-pod.outputs.resourceName}}"
                   - - name: do-work
                       template: do-work
               - name: create-pod
@@ -100,7 +104,15 @@ spec:
                         image: ghcr.io/miletocarmelo/tradingstrategyanalysis:latest
                         ports:
                         - containerPort: 8080
+                outputs:
+                  parameters:
+                    - name: resourceName
+                      valueFrom:
+                        jsonPath: '{.metadata.name}'
               - name: wait-for-pod
+                inputs:
+                  parameters:
+                    - name: pod-name
                 resource:
                   action: get
                   successCondition: status.phase == Running
@@ -109,7 +121,7 @@ spec:
                     apiVersion: v1
                     kind: Pod
                     metadata:
-                      name: "{{tasks.create-pod.outputs.resourceName}}"
+                      name: "{{inputs.parameters.pod-name}}"
                       namespace: {{workflow.namespace}}
               - name: do-work
                 container:
