@@ -49,7 +49,7 @@ spec:
   dependencies:
     - name: trading-strategy-analysis-dep
       eventSourceName: trading-strategy-analysis-webhook
-      eventName: trading-strategy-analysis
+      eventName: trading-strategy-analysis-trigger
   triggers:
     - template:
         name: trading-strategy-analysis-trigger

@@ -11,6 +11,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: trading-strategy-analysis-service
+                name: trading-strategy-analysis-webhook-eventsource-svc # trading-strategy-analysis-service
                 port: 
                   number: 8080
