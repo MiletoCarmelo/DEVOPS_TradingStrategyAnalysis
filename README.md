@@ -10,19 +10,19 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
 ```
 
 ```bash
-kubectl port-forward svc/argocd-server -n argocd 8090:443
+kubectl port-forward svc/argocd-server -n argocd 8070:443 &
 ```
 
 
 # Port-forwarding for argo workflow : 
 
 ```bash
-kubectl -n argo port-forward deployment/argo-server 8095:2746
+kubectl -n argo port-forward deployment/argo-server 8075:2746 &
 ```
 
 # Port-forwarding for the app : 
 ```bash
-kubectl port-forward service/trading-strategy-analysis-service 8020:8020 -n quant-apps
+kubectl port-forward service/trading-strategy-analysis-service 8091:8080 -n quant-apps
 ```
 
 
