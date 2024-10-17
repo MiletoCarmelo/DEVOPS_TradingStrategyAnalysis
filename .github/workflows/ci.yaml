@@ -46,7 +46,6 @@ jobs:
           cp ./dev_event/event-source.yaml ./prod_event/event-source.yaml
           cp ./dev_event/ingress.yaml ./prod_event/ingress.yaml
           cp ./dev_event/redirection-workflow.yaml ./prod_event/redirection-workflow.yaml
-          cp ./dev_event/role-binding.yaml ./prod_event/role-binding.yaml
           cp ./dev_workflow/ephemeral_pods.yaml ./prod_workflow/ephemeral_pods.yaml
           cp ./dev_workflow/websocket-server.yaml ./prod_workflow/websocket-server.yaml
 
