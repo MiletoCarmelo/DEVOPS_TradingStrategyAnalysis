@@ -145,3 +145,4 @@ spec:
         image: alpine
         command: [echo]
         args: ["{{inputs.parameters.message}}"]
+        
