@@ -4,13 +4,13 @@ metadata:
   name: trading-strategy-analysis-template
   namespace: argo-events
 spec:
-  entrypoint: create-and-redirect
+  entrypoint: main
   arguments:
     parameters:
       - name: base-name
         value: "trading-strategy-analysis"
   templates:
-    - name: create-and-redirect
+    - name: main
       steps:
         - - name: generate-unique-name
             template: generate-unique-name
@@ -18,42 +18,18 @@ spec:
               parameters:
                 - name: base-name
                   value: "{{workflow.parameters.base-name}}"
-        - - name: create-pod
-            template: create-pod
+        - - name: create-and-run-child
+            template: create-and-run-child
             arguments:
               parameters:
-                - name: pod-name
+                - name: child-name
                   value: "{{steps.generate-unique-name.outputs.result}}"
-        - - name: wait-for-pod
-            template: wait-for-pod
+        - - name: check-child-status
+            template: check-child-status
             arguments:
               parameters:
-                - name: pod-name
+                - name: child-name
                   value: "{{steps.generate-unique-name.outputs.result}}"
-        - - name: log-pod-ready
-            template: log
-            arguments:
-              parameters:
-                - name: message
-                  value: "Pod {{steps.generate-unique-name.outputs.result}} is ready"
-        - - name: tail-logs
-            template: tail-logs
-            arguments:
-              parameters:
-                - name: pod-name
-                  value: "{{steps.generate-unique-name.outputs.result}}"
-        - - name: redirect
-            template: redirect
-            arguments:
-              parameters:
-                - name: pod-name
-                  value: "{{steps.generate-unique-name.outputs.result}}"
-        - - name: log-redirect
-            template: log
-            arguments:
-              parameters:
-                - name: message
-                  value: "Redirected to: {{steps.redirect.outputs.result}}"
     
     - name: generate-unique-name
       inputs:
@@ -63,21 +39,16 @@ spec:
         image: python:alpine3.6
         command: [python]
         source: |
-          import sys
           import re
           import uuid
           
           base_name = "{{inputs.parameters.base-name}}".lower()
-          # Replace any character that's not alphanumeric, '-', or '.' with '-'
           clean_name = re.sub(r'[^a-z0-9\-\.]', '-', base_name)
-          # Ensure it starts and ends with an alphanumeric character
           clean_name = re.sub(r'^[^a-z0-9]+', '', clean_name)
           clean_name = re.sub(r'[^a-z0-9]+$', '', clean_name)
-          # If the name is empty after cleaning, use a default name
           if not clean_name:
               clean_name = "trading-strategy-analysis"
           
-          # Append a short UUID to ensure uniqueness
           unique_name = f"{clean_name}-{uuid.uuid4().hex[:6]}"
           
           with open('/tmp/unique-name', 'w') as f:
@@ -88,62 +59,83 @@ spec:
             valueFrom:
               path: /tmp/unique-name
     
-    - name: create-pod
+    - name: create-and-run-child
       inputs:
         parameters:
-          - name: pod-name
+          - name: child-name
       resource:
         action: create
         setOwnerReference: true
         manifest: |
-          apiVersion: v1
-          kind: Pod
+          apiVersion: argoproj.io/v1alpha1
+          kind: Workflow
           metadata:
-            name: "{{inputs.parameters.pod-name}}"
-            labels:
-              app: trading-strategy-analysis
+            name: "{{inputs.parameters.child-name}}"
+            namespace: {{workflow.namespace}}
           spec:
-            containers:
-            - name: trading-strategy-analysis
-              image: <<AAA>>
-              ports:
-              - containerPort: 8080
+            entrypoint: child-main
+            templates:
+              - name: child-main
+                steps:
+                  - - name: create-pod
+                      template: create-pod
+                  - - name: wait-for-pod
+                      template: wait-for-pod
+                  - - name: do-work
+                      template: do-work
+              - name: create-pod
+                resource:
+                  action: create
+                  setOwnerReference: true
+                  manifest: |
+                    apiVersion: v1
+                    kind: Pod
+                    metadata:
+                      name: "{{workflow.name}}-pod"
+                      labels:
+                        app: trading-strategy-analysis
+                    spec:
+                      containers:
+                      - name: trading-strategy-analysis
+                        image: <<AAA>>
+                        ports:
+                        - containerPort: 8080
+              - name: wait-for-pod
+                resource:
+                  action: get
+                  successCondition: status.phase == Running
+                  failureCondition: status.phase in (Failed, Unknown)
+                  manifest: |
+                    apiVersion: v1
+                    kind: Pod
+                    metadata:
+                      name: "{{workflow.name}}-pod"
+                      namespace: {{workflow.namespace}}
+              - name: do-work
+                container:
+                  image: <<AAA>>
+                  command: [sh, -c]
+                  args: ["echo 'Performing analysis'; sleep 10; echo 'Analysis complete'"]
     
-    - name: wait-for-pod
+    - name: check-child-status
       inputs:
         parameters:
-          - name: pod-name
+          - name: child-name
       resource:
         action: get
-        successCondition: status.phase == Running
-        failureCondition: status.phase in (Failed, Unknown)
+        successCondition: status.phase == Succeeded
+        failureCondition: status.phase in (Failed, Error)
         manifest: |
-          apiVersion: v1
-          kind: Pod
+          apiVersion: argoproj.io/v1alpha1
+          kind: Workflow
           metadata:
-            name: "{{inputs.parameters.pod-name}}"
+            name: "{{inputs.parameters.child-name}}"
             namespace: {{workflow.namespace}}
-    
-    - name: tail-logs
-      inputs:
-        parameters:
-          - name: pod-name
-      container:
-        image: bitnami/kubectl
-        command: [sh, -c]
-        args: ["kubectl logs -f {{inputs.parameters.pod-name}} -n {{workflow.namespace}} & sleep 30; kill %1"]
-    
-    - name: redirect
-      inputs:
-        parameters:
-          - name: pod-name
-      http:
-        url: "http://{{inputs.parameters.pod-name}}:8080"
       outputs:
         parameters:
-          - name: result
+          - name: status
             valueFrom:
-              path: /url
+              jsonPath: '{.status.phase}'
     
     - name: log
       inputs:
