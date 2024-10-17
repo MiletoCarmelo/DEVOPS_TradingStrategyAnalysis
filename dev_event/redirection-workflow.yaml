@@ -11,28 +11,78 @@ spec:
   templates:
     - name: create-and-redirect
       steps:
+        - - name: generate-compliant-name
+            template: generate-compliant-name
         - - name: create-pod
             template: create-pod
+            arguments:
+              parameters:
+                - name: compliant-pod-name
+                  value: "{{steps.generate-compliant-name.outputs.result}}"
         - - name: wait-for-pod
             template: wait-for-pod
+            arguments:
+              parameters:
+                - name: pod-name
+                  value: "{{steps.generate-compliant-name.outputs.result}}"
         - - name: log-pod-ready
             template: log
             arguments:
               parameters:
                 - name: message
-                  value: "Pod {{workflow.parameters.pod-name}} is ready"
+                  value: "Pod {{steps.generate-compliant-name.outputs.result}} is ready"
         - - name: tail-logs
             template: tail-logs
+            arguments:
+              parameters:
+                - name: pod-name
+                  value: "{{steps.generate-compliant-name.outputs.result}}"
         - - name: redirect
             template: redirect
+            arguments:
+              parameters:
+                - name: pod-name
+                  value: "{{steps.generate-compliant-name.outputs.result}}"
         - - name: log-redirect
             template: log
             arguments:
               parameters:
                 - name: message
                   value: "Redirected to: {{steps.redirect.outputs.result}}"
-
+    
+    - name: generate-compliant-name
+      script:
+        image: python:alpine3.6
+        command: [python]
+        source: |
+          import sys
+          import re
+          
+          original_name = sys.argv[1].lower()
+          # Replace any character that's not alphanumeric, '-', or '.' with '-'
+          compliant_name = re.sub(r'[^a-z0-9\-\.]', '-', original_name)
+          # Ensure it starts and ends with an alphanumeric character
+          compliant_name = re.sub(r'^[^a-z0-9]+', '', compliant_name)
+          compliant_name = re.sub(r'[^a-z0-9]+$', '', compliant_name)
+          # If the name is empty after cleaning, use a default name
+          if not compliant_name:
+              compliant_name = "trading-strategy-analysis"
+          
+          with open('/tmp/compliant-name', 'w') as f:
+              f.write(compliant_name)
+      inputs:
+        parameters:
+          - name: pod-name
+      outputs:
+        parameters:
+          - name: result
+            valueFrom:
+              path: /tmp/compliant-name
+    
     - name: create-pod
+      inputs:
+        parameters:
+          - name: compliant-pod-name
       resource:
         action: create
         setOwnerReference: true
@@ -40,7 +90,7 @@ spec:
           apiVersion: v1
           kind: Pod
           metadata:
-            name: "{{workflow.parameters.pod-name | tolower}}"
+            name: "{{inputs.parameters.compliant-pod-name}}"
             labels:
               app: trading-strategy-analysis
           spec:
@@ -49,8 +99,11 @@ spec:
               image: <<AAA>>
               ports:
               - containerPort: 8080
-
+    
     - name: wait-for-pod
+      inputs:
+        parameters:
+          - name: pod-name
       resource:
         action: get
         successCondition: status.phase == Running
@@ -59,24 +112,30 @@ spec:
           apiVersion: v1
           kind: Pod
           metadata:
-            name: "{{workflow.parameters.pod-name}}"
+            name: "{{inputs.parameters.pod-name}}"
             namespace: {{workflow.namespace}}
-
+    
     - name: tail-logs
+      inputs:
+        parameters:
+          - name: pod-name
       container:
         image: bitnami/kubectl
         command: [sh, -c]
-        args: ["kubectl logs -f {{workflow.parameters.pod-name}} -n {{workflow.namespace}} & sleep 30; kill %1"]
-
+        args: ["kubectl logs -f {{inputs.parameters.pod-name}} -n {{workflow.namespace}} & sleep 30; kill %1"]
+    
     - name: redirect
+      inputs:
+        parameters:
+          - name: pod-name
       http:
-        url: "http://{{workflow.parameters.pod-name}}:8080"
+        url: "http://{{inputs.parameters.pod-name}}:8080"
       outputs:
         parameters:
           - name: result
             valueFrom:
               path: /url
-
+    
     - name: log
       inputs:
         parameters:
