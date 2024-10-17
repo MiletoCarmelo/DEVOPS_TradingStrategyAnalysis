@@ -16,5 +16,5 @@ spec:
 
 # to test the webhook, you can use the following command:
 # if GET method :  curl http://localhost:8080/trading-strategy-analysis
-
+# to test the webhook, you can use the following command:
 # if POST method : curl -X POST -H "Content-Type: application/json" -d '{}' http://localhost:8080/trading-strategy-analysis
