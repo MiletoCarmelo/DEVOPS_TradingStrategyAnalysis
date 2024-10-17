@@ -29,7 +29,7 @@ spec:
             arguments:
               parameters:
                 - name: child-name
-                  value: "{{steps.generate-unique-name.outputs.result}}"
+                  value: "{{steps.create-and-run-child.outputs.parameters.child-workflow-name}}"
     
     - name: generate-unique-name
       inputs:
@@ -66,6 +66,8 @@ spec:
       resource:
         action: create
         setOwnerReference: true
+        successCondition: status.phase == Succeeded
+        failureCondition: status.phase in (Failed, Error)
         manifest: |
           apiVersion: argoproj.io/v1alpha1
           kind: Workflow
@@ -106,6 +108,9 @@ spec:
                       valueFrom:
                         jsonPath: '{.metadata.name}'
               - name: wait-for-pod
+                inputs:
+                  parameters:
+                    - name: pod-name
                 resource:
                   action: get
                   successCondition: status.phase == Running
@@ -114,13 +119,18 @@ spec:
                     apiVersion: v1
                     kind: Pod
                     metadata:
-                      name: "{{steps.create-pod.outputs.parameters.pod-name}}"
+                      name: "{{inputs.parameters.pod-name}}"
                       namespace: {{workflow.namespace}}
               - name: do-work
                 container:
                   image: <<AAA>>
                   command: [sh, -c]
                   args: ["echo 'Performing analysis'; sleep 10; echo 'Analysis complete'"]
+      outputs:
+        parameters:
+          - name: child-workflow-name
+            valueFrom:
+              jsonPath: '{.metadata.name}'
     
     - name: check-child-status
       inputs:
