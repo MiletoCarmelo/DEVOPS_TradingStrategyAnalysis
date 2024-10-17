@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   name: trading-strategy-analysis-deploy
-  namespace: argo-events  # Make sure this matches your desired namespace
+  namespace: argo  # Change this to match your Argo Workflows namespace
 spec:
   entrypoint: deploy-taipy
   templates:
@@ -18,7 +18,7 @@ spec:
               kind: Deployment
               metadata:
                 name: trading-strategy-analysis-deployment
-                namespace: argo-events
+                namespace: argo-events  # This is the target namespace for your deployment
               spec:
                 replicas: 1
                 selector:
