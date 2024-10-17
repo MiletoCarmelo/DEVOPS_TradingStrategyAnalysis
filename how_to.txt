@@ -271,6 +271,10 @@ kubectl get services -n argo-events
 kubectl port-forward service/trading-strategy-analysis-webhook-eventsource-svc 8091:8080 -n argo-events
 
 
+# IN PROD It is better to forward and ttarger the eventsource service : 
+kubectl port-forward svc/trading-strategy-analysis-webhook-eventsource-svc -n argo-events 8888:8080
+
+
 # test if it is a get moethd : 
 curl http://localhost:8091/tradingstrategyanalysis
 
