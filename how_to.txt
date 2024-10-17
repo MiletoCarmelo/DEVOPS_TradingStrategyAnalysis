@@ -211,8 +211,29 @@ kubectl apply -f https://raw.githubusercontent.com/argoproj/argo-events/stable/m
 # setup events-bus pod : 
 kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/eventbus/native.yaml
 
+# set up workflow module inside the namespace : 
+export ARGO_WORKFLOWS_VERSION=v3.5.4
+curl -sLO https://github.com/argoproj/argo-workflows/releases/download/${ARGO_WORKFLOWS_VERSION}/install.yaml
+# modify the namespace inside the file downloaded : 
+sed -i 's/namespace: argo/namespace: argo-events/g' install.yaml
+# using mac : 
+# sed -i '' 's/namespace: argo/namespace: argo-events/g' install.yaml
+# apply : 
+kubectl apply -f install.yaml
+# delete : 
+rm install.yaml
+# check argo server installed : 
+kubectl get pods -n argo-events
+
+
 # setup event-sources for webhook: 
 kubectl --namespace argo-events apply --filename ./prod_event/event-source.yaml
+
+# apply role binding to the default one : 
+kubectl --namespace argo-events apply --filename ./prod_event/role-binding.yaml
+# or apply the changes : 
+kubectl -n argo-events  apply --filename ./prod_event/role-binding.yaml
+
 
 # apply the sensor : 
 kubectl --namespace argo-events apply --filename ./prod_event/sensor.yaml
