@@ -8,16 +8,41 @@ spec:
   templates:
     - name: create-and-redirect
       steps:
+        - - name: log-start
+            template: log
+            arguments:
+              parameters:
+                - name: message
+                  value: "Starting workflow execution"
         - - name: create-pod
             template: create-pod
+        - - name: log-pod-created
+            template: log
+            arguments:
+              parameters:
+                - name: message
+                  value: "Pod created: {{steps.create-pod.outputs.result}}"
         - - name: wait-for-pod
             template: wait-for-pod
+        - - name: log-pod-ready
+            template: log
+            arguments:
+              parameters:
+                - name: message
+                  value: "Pod is ready: {{steps.wait-for-pod.outputs.result}}"
         - - name: redirect
             template: redirect
+        - - name: log-end
+            template: log
+            arguments:
+              parameters:
+                - name: message
+                  value: "Workflow completed, redirected to: {{steps.redirect.outputs.result}}"
 
     - name: create-pod
       resource:
         action: create
+        setOwnerReference: true
         manifest: |
           apiVersion: v1
           kind: Pod
@@ -28,14 +53,15 @@ spec:
           spec:
             containers:
             - name: trading-strategy-analysis
-              image: image: ghcr.io/miletocarmelo/tradingstrategyanalysis:latest
+              image: ghcr.io/miletocarmelo/tradingstrategyanalysis:latest
               ports:
               - containerPort: 8080
-              env:
-              - name: PORT
-                value: "8080"
-            restartPolicy: Never
-          
+      outputs:
+        parameters:
+          - name: result
+            valueFrom:
+              jsonPath: '{.metadata.name}'
+
     - name: wait-for-pod
       resource:
         action: get
@@ -45,12 +71,28 @@ spec:
           apiVersion: v1
           kind: Pod
           metadata:
-            name: "{{steps.create-pod.outputs.manifest.metadata.name}}"
+            name: "{{steps.create-pod.outputs.result}}"
             namespace: {{workflow.namespace}}
+      outputs:
+        parameters:
+          - name: result
+            valueFrom:
+              jsonPath: '{.status.podIP}'
 
     - name: redirect
       http:
-        url: "http://{{steps.wait-for-pod.outputs.response.status.podIP}}:8080"
+        url: "http://{{steps.wait-for-pod.outputs.result}}:8080"
+      outputs:
+        parameters:
+          - name: result
+            valueFrom:
+              path: /url
 
-
-
+    - name: log
+      inputs:
+        parameters:
+          - name: message
+      container:
+        image: alpine:3.14
+        command: [echo]
+        args: ["{{inputs.parameters.message}}"]
