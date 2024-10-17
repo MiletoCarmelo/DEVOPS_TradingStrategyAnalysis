@@ -41,5 +41,5 @@ spec:
       - name: manifest
     container:
       image: bitnami/kubectl
-      command: [kubectl, apply, -f, -]
-      stdin: "{{inputs.parameters.manifest}}"
+      command: [sh, -c]
+      args: ['echo "{{inputs.parameters.manifest}}" | kubectl apply -f -']
