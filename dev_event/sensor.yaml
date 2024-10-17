@@ -64,11 +64,15 @@ spec:
               spec:
                 workflowTemplateRef:
                   name: trading-strategy-analysis-template
+                arguments:
+                  parameters:
+                    - name: base-name
+                      value: "trading-strategy-analysis-"
     - template:
         name: log-trigger
         log:
           intervalSeconds: 20
           message: |
-            Received event:
-             Payload: {{ .Input.payload | toJson }}
-             EventContext: {{ .Input.eventContext | toJson }}
+            Received event: 
+            Payload: {{ .Input.payload | toJson }}
+            EventContext: {{ .Input.eventContext | toJson }}
