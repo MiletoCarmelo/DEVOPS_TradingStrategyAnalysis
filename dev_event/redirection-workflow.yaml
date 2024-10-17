@@ -79,20 +79,16 @@ spec:
             templates:
               - name: child-main
                 steps:
-                  - - name: create-pod
-                      template: create-pod
-                  - - name: wait-for-pod
-                      template: wait-for-pod
-                      arguments:
-                        parameters:
-                          - name: pod-name
-                            value: "{{steps.create-pod.outputs.parameters.pod-name}}"
+                  - - name: create-and-wait-pod
+                      template: create-and-wait-pod
                   - - name: do-work
                       template: do-work
-              - name: create-pod
+              - name: create-and-wait-pod
                 resource:
                   action: create
                   setOwnerReference: true
+                  successCondition: status.phase == Running
+                  failureCondition: status.phase in (Failed, Unknown)
                   manifest: |
                     apiVersion: v1
                     kind: Pod
@@ -106,25 +102,6 @@ spec:
                         image: <<AAA>>
                         ports:
                         - containerPort: 8080
-                outputs:
-                  parameters:
-                    - name: pod-name
-                      valueFrom:
-                        jsonPath: '{.metadata.name}'
-              - name: wait-for-pod
-                inputs:
-                  parameters:
-                    - name: pod-name
-                resource:
-                  action: get
-                  successCondition: status.phase == Running
-                  failureCondition: status.phase in (Failed, Unknown)
-                  manifest: |
-                    apiVersion: v1
-                    kind: Pod
-                    metadata:
-                      name: "{{inputs.parameters.pod-name}}"
-                      namespace: {{workflow.namespace}}
               - name: do-work
                 container:
                   image: <<AAA>>
