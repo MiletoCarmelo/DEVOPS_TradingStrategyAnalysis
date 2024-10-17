@@ -7,7 +7,7 @@ spec:
   selector:
     matchLabels:
       app: trading-strategy-analysis
-  replicas: 2 # Number of pods to run
+  replicas: 1 # Number of pods to run
   template:
     metadata:
       labels:

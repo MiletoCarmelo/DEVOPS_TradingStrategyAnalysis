@@ -1,0 +1,56 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: trading-strategy-analysis-template
+  namespace: argo-events
+spec:
+  entrypoint: create-and-redirect
+  templates:
+    - name: create-and-redirect
+      steps:
+        - - name: create-pod
+            template: create-pod
+        - - name: wait-for-pod
+            template: wait-for-pod
+        - - name: redirect
+            template: redirect
+
+    - name: create-pod
+      resource:
+        action: create
+        manifest: |
+          apiVersion: v1
+          kind: Pod
+          metadata:
+            generateName: trading-strategy-analysis-
+            labels:
+              app: trading-strategy-analysis
+          spec:
+            containers:
+            - name: trading-strategy-analysis
+              image: image: ghcr.io/miletocarmelo/tradingstrategyanalysis:latest
+              ports:
+              - containerPort: 8080
+              env:
+              - name: PORT
+                value: "8080"
+            restartPolicy: Never
+          
+    - name: wait-for-pod
+      resource:
+        action: get
+        successCondition: status.phase == Running
+        failureCondition: status.phase in (Failed, Unknown)
+        manifest: |
+          apiVersion: v1
+          kind: Pod
+          metadata:
+            name: "{{steps.create-pod.outputs.manifest.metadata.name}}"
+            namespace: {{workflow.namespace}}
+
+    - name: redirect
+      http:
+        url: "http://{{steps.wait-for-pod.outputs.response.status.podIP}}:8080"
+
+
+
