@@ -30,7 +30,13 @@ spec:
               parameters:
                 - name: child-name
                   value: "{{steps.create-and-run-child.outputs.parameters.child-workflow-name}}"
-    
+        - - name: redirect
+            template: redirect
+            arguments:
+              parameters:
+                - name: child-name
+                  value: "{{steps.create-and-run-child.outputs.parameters.child-workflow-name}}"
+
     - name: generate-unique-name
       inputs:
         parameters:
@@ -136,6 +142,24 @@ spec:
           - name: status
             valueFrom:
               jsonPath: '{.status.phase}'
+
+    - name: redirect
+      inputs:
+        parameters:
+          - name: child-name
+      script:
+        image: appropriate/curl
+        command: [sh]
+        source: |
+          set -e
+          POD_NAME=$(kubectl get pods -l workflows.argoproj.io/workflow={{inputs.parameters.child-name}} -o jsonpath='{.items[0].metadata.name}')
+          POD_IP=$(kubectl get pod $POD_NAME -o jsonpath='{.status.podIP}')
+          echo "http://$POD_IP:8080" > /tmp/redirect-url
+      outputs:
+        parameters:
+          - name: redirect-url
+            valueFrom:
+              path: /tmp/redirect-url
     
     - name: log
       inputs:
