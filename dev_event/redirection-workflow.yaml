@@ -4,6 +4,7 @@ metadata:
   name: trading-strategy-analysis-template
   namespace: argo-events
 spec:
+  serviceAccountName: argo-workflow  # Add this line
   entrypoint: main
   arguments:
     parameters:
