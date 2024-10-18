@@ -110,7 +110,7 @@ spec:
                 container:
                   image: <<AAA>>
                   command: [sh, -c]
-                  args: ["echo 'Performing analysis'; sleep 10; echo 'Analysis complete'"]
+                  args: ["echo 'Performing analysis'; echo 'Analysis complete'"]
       outputs:
         parameters:
           - name: child-workflow-name
