@@ -294,3 +294,41 @@ kubectl --namespace argo-events logs --selector app=trading-strategy-analysis
 # get all info : 
 kubectl get all -n quant-apps-events
 kubectl get deployments --namespace quant-apps-events
+
+
+
+
+
+
+
+
+
+
+############################################### TESTING DEV AND PROD CREATION : 
+
+
+
+
+
+
+
+
+
+# get release names : 
+helm list --all-namespaces
+
+# update helm 
+helm upgrade <release-name> <chart-path> -f values.yaml -n <name-space>
+helm upgrade generic-python-frontend . -f values.yaml -n default
+
+
+
+
+
+
+
+
+helm upgrade -i -f values.yaml generic-python-frontend .
+
+
+helm install generic-python-frontend ./generic-python-frontend
